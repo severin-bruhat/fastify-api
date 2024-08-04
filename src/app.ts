@@ -2,7 +2,9 @@ import Fastify, { FastifyRequest, FastifyReply } from "fastify";
 import fjwt, { FastifyJWT } from '@fastify/jwt'
 import fCookie from '@fastify/cookie'
 import userRoutes from "./modules/user/user.route";
+import productRoutes from "./modules/product/product.route";
 import { userSchemas } from './modules/user/user.schema';
+import { productSchemas } from './modules/product/product.schema';
 
 const fastify = Fastify();
 
@@ -40,11 +42,12 @@ fastify.get('/helloworld', async (req, res) => {
 
 async function main() {
 
-    for (const schema of userSchemas) {         // should be add these schemas before you register your routes
+    for (const schema of [...userSchemas, ...productSchemas]) {
         fastify.addSchema(schema);
     }
 
-    fastify.register(userRoutes, {prefix: 'api/users'})   
+    fastify.register(userRoutes, {prefix: 'api/users'});
+    fastify.register(productRoutes, { prefix: 'api/products' }); 
 
     try {
 
