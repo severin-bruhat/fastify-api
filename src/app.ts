@@ -18,7 +18,21 @@ fastify.addHook('preHandler', (req, res, next) => {
 fastify.register(fCookie, {
     secret: process.env.COOKIE_SECRET || 'some-secret-key',
     hook: 'preHandler',
-})
+});
+
+fastify.decorate(
+    'authenticate',
+    async (request: FastifyRequest, reply: FastifyReply) => {
+        const token = request.cookies.access_token;
+
+        if (!token) {
+            return reply.status(401).send({ message: 'Authentication required' });
+        }
+
+        const decoded = request.jwt.verify<FastifyJWT['user']>(token);
+        request. user = decoded;
+    }
+);
 
 fastify.get('/helloworld', async (req, res) => {
     return { message: 'Hello World!' }
