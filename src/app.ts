@@ -1,8 +1,24 @@
-import Fastify from "fastify";
+import Fastify, { FastifyRequest, FastifyReply } from "fastify";
+import fjwt, { FastifyJWT } from '@fastify/jwt'
+import fCookie from '@fastify/cookie'
 import userRoutes from "./modules/user/user.route";
 import { userSchemas } from './modules/user/user.schema';
 
 const fastify = Fastify();
+
+fastify.register(fjwt, {
+    secret: process.env.JWT_SECRET || 'some-secret-key'
+});
+
+fastify.addHook('preHandler', (req, res, next) => {
+    req.jwt = fastify.jwt
+    return next()
+});
+
+fastify.register(fCookie, {
+    secret: process.env.COOKIE_SECRET || 'some-secret-key',
+    hook: 'preHandler',
+})
 
 fastify.get('/helloworld', async (req, res) => {
     return { message: 'Hello World!' }
